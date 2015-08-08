@@ -9,6 +9,12 @@ Checks in our pre-commit hook
 * PHPMD: We have enabled the controversial rules.
 * Unit Testing check: We run around 3.000 tests right now.
 
+![PHPCsFix](images/PHPCsFix.jpg "PHPCsFix")
+
+![PHPLint](images/PHPLint.jpg "PHPLint")
+
+![PHPUnit](images/PHPUnit.jpg "PHPUnit")
+
 **INSTALLATION:**
 
 The recommended way to install this library is through [Composer](http://getcomposer.org):
