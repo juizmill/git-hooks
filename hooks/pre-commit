@@ -1,0 +1,238 @@
+#!/usr/bin/php
+
+<?php
+
+define('VENDOR_DIR', __DIR__ . '/../../vendor');
+
+require VENDOR_DIR.'/autoload.php';
+
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Console\Application;
+
+class CodeQualityTool extends Application
+{
+    private $output;
+    private $input;
+
+    const PHP_FILES_IN_SRC = '/^src\/(.*)(\.php)$/';
+    const PHP_FILES_IN_CLASSES = '/^classes\/(.*)(\.php)$/';
+
+    public function __construct()
+    {
+        parent::__construct('Code Quality Tool', '1.0.0');
+    }
+
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        $this->input = $input;
+        $this->output = $output;
+
+        $output->writeln('<fg=white;options=bold;bg=red>Code Quality Tool</fg=white;options=bold;bg=red>');
+        $output->writeln('<info>Fetching files</info>');
+        $files = $this->extractCommitedFiles();
+
+        $output->writeln('<info>Running PHPLint</info>');
+        if (!$this->phpLint($files)) {
+            throw new Exception('There are some PHP syntax errors!');
+        }
+
+        $output->writeln('<info>Checking code style</info>');
+        if (!$this->codeStyle($files)) {
+            throw new Exception(sprintf('There are coding standards violations!'));
+        }
+
+        $output->writeln('<info>Checking code style with PHPCS</info>');
+        if (!$this->codeStylePsr($files)) {
+            throw new Exception(sprintf('There are PHPCS coding standards violations!'));
+        }
+
+        $output->writeln('<info>Checking code mess with PHPMD</info>');
+        if (!$this->phPmd($files)) {
+            throw new Exception(sprintf('There are PHPMD violations!'));
+        }
+
+        $output->writeln('<info>Running unit tests</info>');
+        if (!$this->unitTests()) {
+            throw new Exception('Fix the fucking unit tests!');
+        }
+
+        $output->writeln('<info>Good job dude!</info>');
+    }
+
+    private function extractCommitedFiles()
+    {
+        $output = array();
+        $rc = 0;
+
+        exec('git rev-parse --verify HEAD 2> /dev/null', $output, $rc);
+
+        $against = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+        if ($rc == 0) {
+            $against = 'HEAD';
+        }
+
+        exec("git diff-index --cached --name-status $against | egrep '^(A|M)' | awk '{print $2;}'", $output);
+
+        return $output;
+    }
+
+    private function phpLint($files)
+    {
+        $needle = '/(\.php)|(\.inc)$/';
+        $succeed = true;
+
+        foreach ($files as $file) {
+            if (!preg_match($needle, $file)) {
+                continue;
+            }
+
+            $processBuilder = new ProcessBuilder(array('php', '-l', $file));
+            $process = $processBuilder->getProcess();
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                $this->output->writeln($file);
+                $this->output->writeln(sprintf('<error>%s</error>', trim($process->getErrorOutput())));
+
+                if ($succeed) {
+                    $succeed = false;
+                }
+            }
+        }
+
+        return $succeed;
+    }
+
+    private function phPmd($files)
+    {
+        $needle = self::PHP_FILES_IN_SRC;
+        $succeed = true;
+        $rootPath = realpath(__DIR__ . '/../../');
+
+        $fileRule = VENDOR_DIR. '/../phpmd.xml';
+
+        if (file_exists($fileRule)) {
+            $rule = $fileRule;
+        } else {
+            $rule = 'codesize,unusedcode,naming';
+        }
+
+        foreach ($files as $file) {
+            if (!preg_match($needle, $file)) {
+                continue;
+            }
+
+            $processBuilder = new ProcessBuilder(['php', VENDOR_DIR.'/bin/phpmd', $file, 'text', $rule]);
+            $processBuilder->setWorkingDirectory($rootPath);
+            $process = $processBuilder->getProcess();
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                $this->output->writeln($file);
+                $this->output->writeln(sprintf('<error>%s</error>', trim($process->getErrorOutput())));
+                $this->output->writeln(sprintf('<info>%s</info>', trim($process->getOutput())));
+                if ($succeed) {
+                    $succeed = false;
+                }
+            }
+        }
+
+        return $succeed;
+    }
+
+    private function unitTests()
+    {
+        $filePhpunit = VENDOR_DIR. '/../phpunit.xml';
+
+        if (file_exists($filePhpunit)) {
+            $processBuilder = new ProcessBuilder(array('php', VENDOR_DIR.'/bin/phpunit'));
+            $processBuilder->setWorkingDirectory(__DIR__ . '/../..');
+            $processBuilder->setTimeout(3600);
+            $phpunit = $processBuilder->getProcess();
+
+            $phpunit->run(function ($type, $buffer) {
+                $this->output->write($buffer);
+            });
+
+            return $phpunit->isSuccessful();
+        }
+
+        $this->output->writeln(sprintf('<fg=yellow>%s</>', 'Not PHPUnit!'));
+        return true;
+    }
+
+    private function codeStyle(array $files)
+    {
+        $succeed = true;
+
+        foreach ($files as $file) {
+            $classesFile = preg_match(self::PHP_FILES_IN_CLASSES, $file);
+            $srcFile = preg_match(self::PHP_FILES_IN_SRC, $file);
+
+            if (!$classesFile && !$srcFile) {
+                continue;
+            }
+
+            $fixers = '-psr0';
+            if ($classesFile) {
+                $fixers = 'eof_ending,indentation,linefeed,lowercase_keywords,trailing_spaces,short_tag,php_closing_tag,extra_empty_lines,elseif,function_declaration';
+            }
+
+            $processBuilder = new ProcessBuilder(array('php', 'bin/php-cs-fixer', '--dry-run', '--verbose', 'fix', $file, '--fixers='.$fixers));
+
+            $processBuilder->setWorkingDirectory(__DIR__ . '/../../');
+            $phpCsFixer = $processBuilder->getProcess();
+            $phpCsFixer->run();
+
+            if (!$phpCsFixer->isSuccessful()) {
+                $this->output->writeln(sprintf('<error>%s</error>', trim($phpCsFixer->getOutput())));
+
+                if ($succeed) {
+                    $succeed = false;
+                }
+            }
+        }
+
+        return $succeed;
+    }
+
+    private function codeStylePsr(array $files)
+    {
+        $succeed = true;
+        $needle = self::PHP_FILES_IN_SRC;
+
+        $phpcs = VENDOR_DIR. '/../phpcs.xml';
+
+        if (file_exists($phpcs)) {
+            $standard = $phpcs;
+        } else {
+            $standard = 'PSR2';
+        }
+
+        foreach ($files as $file) {
+            if (!preg_match($needle, $file)) {
+                continue;
+            }
+
+            $processBuilder = new ProcessBuilder(array('php', VENDOR_DIR.'/bin/phpcs', '--standard='.$standard, $file));
+            $processBuilder->setWorkingDirectory(__DIR__ . '/../../');
+            $phpCsFixer = $processBuilder->getProcess();
+            $phpCsFixer->run();
+
+            if (!$phpCsFixer->isSuccessful()) {
+                $this->output->writeln(sprintf('<error>%s</error>', trim($phpCsFixer->getOutput())));
+
+                if ($succeed) {
+                    $succeed = false;
+                }
+            }
+        }
+
+        return $succeed;
+    }
+}
+
+$console = new CodeQualityTool();
+$console->run();
