@@ -180,7 +180,7 @@ class CodeQualityTool extends Application
                 $fixers = 'eof_ending,indentation,linefeed,lowercase_keywords,trailing_spaces,short_tag,php_closing_tag,extra_empty_lines,elseif,function_declaration';
             }
 
-            $processBuilder = new ProcessBuilder(array('php', 'bin/php-cs-fixer', '--dry-run', '--verbose', 'fix', $file, '--fixers='.$fixers));
+            $processBuilder = new ProcessBuilder(array('php', VENDOR_DIR.'/bin/php-cs-fixer', '--dry-run', '--verbose', 'fix', $file, '--fixers='.$fixers));
 
             $processBuilder->setWorkingDirectory(__DIR__ . '/../../');
             $phpCsFixer = $processBuilder->getProcess();
