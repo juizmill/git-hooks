@@ -32,22 +32,21 @@ When a developer clones the project, it just needs to:
 
 Edit composer.json and add:
 
-```bash
-
-"scripts": {
-    "pre-update-cmd": "Hgtan\\Composer\\Script\\Hooks::checkHooks",
-    "pre-install-cmd": "Hgtan\\Composer\\Script\\Hooks::checkHooks"
-}
-
+```
+    "scripts": {
+        "pre-update-cmd": "Hgtan\\Composer\\Script\\Hooks::checkHooks",
+        "pre-install-cmd": "Hgtan\\Composer\\Script\\Hooks::checkHooks"
+    }
 ```
 
 or
 
 ```
-cd [project]
-rm -rf .git/hooks/pre-commit
-cp vendor/juizmill/pre-commit/hooks/pre-commit .git/hooks/pre-commit
-chmod -R 777 .git/hooks/pre-commit
+    cd [project]
+    rm -rf .git/hooks/pre-commit
+    cp vendor/juizmill/pre-commit/hooks/pre-commit .git/hooks/pre-commit
+    chmod -R 777 .git/hooks/pre-commit
+```
 
 Remembering to set up the hooks
 
@@ -55,13 +54,16 @@ Remembering to set up the hooks
 Custom config
 --------------
 
-Copy arquive in `vendor/juizmill/pre-commit/config/*` to [project]
+Copy arquives `vendor/juizmill/pre-commit/config/*` to [project]
 
 
 Reference
 -----------
 
  [Write your git hooks in PHP and keep them under git control](http://carlosbuenosvinos.com/write-your-git-hooks-in-php-and-keep-them-under-git-control/)
+ 
  [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml)
+ 
  [PHP-CS-FIX](http://cs.sensiolabs.org/)
+ 
  [PHPMD](http://phpmd.org/documentation/index.html)
