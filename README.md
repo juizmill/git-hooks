@@ -40,8 +40,10 @@ Edit composer.json and add:
 
 ```
     "scripts": {
-        "pre-update-cmd": "PreCommit\\Composer\\Script\\Hooks::checkHooks",
-        "pre-install-cmd": "PreCommit\\Composer\\Script\\Hooks::checkHooks"
+        "pre-update-cmd": "PreCommit\\Composer\\Script\\Hooks::preHooks",
+        "pre-install-cmd": "PreCommit\\Composer\\Script\\Hooks::preHooks",
+        "post-update-cmd": "PreCommit\\Composer\\Script\\Hooks::postHooks",
+        "post-install-cmd": "PreCommit\\Composer\\Script\\Hooks::postHooks"
     }
 ```
 
