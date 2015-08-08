@@ -34,8 +34,8 @@ Edit composer.json and add:
 
 ```
     "scripts": {
-        "pre-update-cmd": "Hgtan\\Composer\\Script\\Hooks::checkHooks",
-        "pre-install-cmd": "Hgtan\\Composer\\Script\\Hooks::checkHooks"
+        "pre-update-cmd": "PreCommit\\Composer\\Script\\Hooks::checkHooks",
+        "pre-install-cmd": "PreCommit\\Composer\\Script\\Hooks::checkHooks"
     }
 ```
 

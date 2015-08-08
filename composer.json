@@ -15,7 +15,7 @@
             "PreCommit\\": ""
         }
     },
-    "require-dev": {
+    "require": {
         "symfony/process": "^2.7",
         "squizlabs/php_codesniffer": "^2.3",
         "phpmd/phpmd": "^2.2",
