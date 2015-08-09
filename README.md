@@ -75,3 +75,5 @@ Reference
  [PHP-CS-FIX](http://cs.sensiolabs.org/)
  
  [PHPMD](http://phpmd.org/documentation/index.html)
+
+ [Custom PHPCS and PHPMD](http://edorian.github.io/php-coding-standard-generator/#phpmd)
