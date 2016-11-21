@@ -1,8 +1,8 @@
 {
-    "name": "juizmill/pre-commit",
-    "description": "Pre-commit hook",
+    "name": "juizmill/gitHooks",
+    "description": "Git Hooks",
     "type": "library",
-    "homepage": "https://github.com/juizmill/pre-commit",
+    "homepage": "https://github.com/juizmill/gitHooks",
     "license": "MIT",
     "authors": [
         {
@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4":{
-            "PreCommit\\": ""
+            "GitHooks\\": ""
         }
     },
     "require": {

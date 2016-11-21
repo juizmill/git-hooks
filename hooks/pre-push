@@ -63,19 +63,39 @@ class CodeQualityTool extends Application
 
     private function extractCommitedFiles()
     {
-        $output = array();
-        $rc = 0;
 
-        exec('git rev-parse --verify HEAD 2> /dev/null', $output, $rc);
+        /**
+        * The SHA1 ID of an empty branch.
+        */
+        define ('SHA1_EMPTY', '0000000000000000000000000000000000000000');
+        $file_list = [];
 
-        $against = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
-        if ($rc == 0) {
-            $against = 'HEAD';
-        }
+        // Loop over the commits.
+        while ($commit = trim(fgets(STDIN))) {
+            list ($local_ref, $local_sha, $remote_ref, $remote_sha) = explode(' ', $commit);
 
-        exec("git diff-index --cached --name-status $against | egrep '^(A|M)' | awk '{print $2;}'", $output);
+            // Skip the coding standards check if we are deleting a branch or if there is
+            // no local branch.
+            if ($local_ref === '(delete)' || $local_sha === SHA1_EMPTY) {
+                exit(0);
+            }
 
-        return $output;
+            // Escape shell command arguments. These should normally be safe since they
+            // only contain SHA numbers, but you never know.
+            foreach (['local_sha', 'remote_sha'] as $argument) {
+                $$argument = escapeshellcmd($$argument);
+            }
+
+            $command = "git diff-tree --no-commit-id --name-only -r '$local_sha' '$remote_sha'";
+                $file_list = array_merge($file_list, explode("\n", `$command`));
+            }
+
+            // Remove duplicates, empty lines and files that no longer exist in the branch.
+            $file_list = array_unique(array_filter($file_list, function ($file) {
+                return !empty($file) && file_exists($file);
+            }));
+
+            return $file_list;
     }
 
     private function phpLint($files)
@@ -146,7 +166,7 @@ class CodeQualityTool extends Application
     {
         $filePhpunit = VENDOR_DIR. '/../phpunit.xml';
 
-        if (file_exists($filePhpunit)) {
+        if (file_exists($filePhpunit) || file_exists($filePhpunit.'.dist')) {
             $processBuilder = new ProcessBuilder(array('php', VENDOR_DIR.'/bin/phpunit'));
             $processBuilder->setWorkingDirectory(__DIR__ . '/../..');
             $processBuilder->setTimeout(3600);

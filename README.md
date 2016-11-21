@@ -1,6 +1,6 @@
-# Pre commit hook
+# Git Hooks hook
 
-Checks in our pre-commit hook
+Checks in our gitHooks hook
 
 * Syntax check with php lint (“php -l”): We check every committed file has a valid PHP syntax.
 * Sync check of composer.json and composer.lock files: We check these two files are committed together in order to avoid committing the json but not the lock and generate some issue to another developers.
@@ -25,11 +25,11 @@ composer.json
 ```bash
 "require-dev": {
     ...
-    "juizmill/pre-commit": "dev-master"
+    "juizmill/gitHooks": "dev-master"
 }
 ```
 
-`php composer.phar update juizmill/pre-commit`
+`php composer.phar update juizmill/gitHooks`
 
 
 **USAGE:**
@@ -40,20 +40,11 @@ Edit composer.json and add:
 
 ```
     "scripts": {
-        "pre-update-cmd": "PreCommit\\Composer\\Script\\Hooks::preHooks",
-        "pre-install-cmd": "PreCommit\\Composer\\Script\\Hooks::preHooks",
-        "post-update-cmd": "PreCommit\\Composer\\Script\\Hooks::postHooks",
-        "post-install-cmd": "PreCommit\\Composer\\Script\\Hooks::postHooks"
+        "pre-update-cmd": "GitHooks\\Composer\\Script\\Hooks::preHooks",
+        "pre-install-cmd": "GitHooks\\Composer\\Script\\Hooks::preHooks",
+        "post-update-cmd": "GitHooks\\Composer\\Script\\Hooks::postHooks",
+        "post-install-cmd": "GitHooks\\Composer\\Script\\Hooks::postHooks"
     }
-```
-
-or
-
-```
-    cd [project]
-    rm -rf .git/hooks/pre-commit
-    cp vendor/juizmill/pre-commit/hooks/pre-commit .git/hooks/pre-commit
-    chmod -R 777 .git/hooks/pre-commit
 ```
 
 Remembering to set up the hooks
@@ -62,7 +53,7 @@ Remembering to set up the hooks
 Custom config
 --------------
 
-Copy arquives `vendor/juizmill/pre-commit/config/*` to [project]
+Copy arquives `vendor/juizmill/gitHooks/config/*` to [project]
 
 
 Reference
