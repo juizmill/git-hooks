@@ -1,6 +1,6 @@
 # Git Hooks
 
-Checks in our gitHooks
+Checks list
 
 * Syntax check with php lint (“php -l”): We check every committed file has a valid PHP syntax.
 * Sync check of composer.json and composer.lock files: We check these two files are committed together in order to avoid committing the json but not the lock and generate some issue to another developers.
@@ -19,17 +19,17 @@ Checks in our gitHooks
 
 The recommended way to install this library is through [Composer](http://getcomposer.org):
 
-add `juizmill/gitHooks` as a composer dependency.
+add `juizmill/git-hooks` as a composer dependency.
 
 composer.json
 ```bash
 "require-dev": {
     ...
-    "juizmill/gitHooks": "dev-master"
+    "juizmill/git-hooks": "dev-master"
 }
 ```
 
-`php composer.phar update juizmill/gitHooks`
+`php composer.phar update juizmill/git-hooks`
 
 
 **USAGE:**
@@ -53,7 +53,7 @@ Remembering to set up the hooks
 Custom config
 --------------
 
-Copy arquives `vendor/juizmill/gitHooks/config/*` to [project]
+Copy arquives `vendor/juizmill/git-hooks/config/*` to [project]
 
 
 Reference
