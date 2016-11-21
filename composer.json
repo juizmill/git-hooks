@@ -1,8 +1,8 @@
 {
-    "name": "juizmill/gitHooks",
+    "name": "juizmill/git-hooks",
     "description": "Git Hooks",
     "type": "library",
-    "homepage": "https://github.com/juizmill/gitHooks",
+    "homepage": "https://github.com/juizmill/git-hooks",
     "license": "MIT",
     "authors": [
         {
