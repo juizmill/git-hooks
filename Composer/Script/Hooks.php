@@ -30,7 +30,7 @@ class Hooks
 
         $io = $event->getIO();
         $gitHook = ROOT_DIR.'.git/hooks/pre-push';
-        $docHook = ROOT_DIR.'vendor/juizmill/pre-push/hooks/pre-push';
+        $docHook = ROOT_DIR.'vendor/juizmill/git-hooks/hooks/pre-push';
 
         copy($docHook, $gitHook);
         chmod($gitHook, 0777);
