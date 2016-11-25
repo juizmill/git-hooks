@@ -2,6 +2,7 @@
 
 namespace GitHooks\Composer\Script;
 
+use Exception;
 use Composer\Script\Event;
 
 define('ROOT_DIR', __DIR__ . '/../../../../../');
@@ -23,6 +24,10 @@ class Hooks
 
     public static function postHooks(Event $event)
     {
+        if (!file_exists(ROOT_DIR.'.git')) {
+            throw new Exception(sprintf('Opss! Repository Git local not found.'));
+        }
+
         $io = $event->getIO();
         $gitHook = ROOT_DIR.'.git/hooks/pre-push';
         $docHook = ROOT_DIR.'vendor/juizmill/pre-push/hooks/pre-push';
