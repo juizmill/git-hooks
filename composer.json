@@ -16,7 +16,7 @@
         }
     },
     "require": {
-        "symfony/process": "v3.1.7",
+        "symfony/process": "v3.*",
         "squizlabs/php_codesniffer": "^2.3",
         "phpmd/phpmd": "^2.2",
         "friendsofphp/php-cs-fixer": "v1.12.4",
